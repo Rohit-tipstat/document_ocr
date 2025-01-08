@@ -2,6 +2,8 @@ from ollama import chat
 from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
 from utils.ocr_tools.surya_ocr_tool import get_image_text_suryaocr
+from utils.ocr_tools.easy_ocr_tool import get_image_text_easyocr
+
 
 class Mark_for_each_subject(BaseModel):
     semeste_year_class: str | None = Field(
@@ -52,16 +54,17 @@ class Marksheet(BaseModel):
     )
 
 
-image_path = "/home/document_ocr/images/12th/Document_2_App_1.pdf"
+image_path = "/root/document_ocr/images/12th/Document_2_App_1.pdf"
 
 # extracting info using Two OCR-tools
 # 1) Using EasyOCR
-
+easy_ocr_text_extracted_ = get_image_text_easyocr(image_path)
+print("Easy OCR text extractor: \n", easy_ocr_text_extracted_)
 
 
 # 2) Using SuryaOCR
-surya_ocr_text_extracted_ = get_image_text_suryaocr(image_path)
-print(text_extracted)
+surya_ocr_text_extracted = get_image_text_suryaocr(image_path)
+print("Surya OCR text extractor: \n", surya_ocr_text_extracted)
 
 response = chat(
     messages=[
@@ -72,116 +75,17 @@ response = chat(
             Make sure there are no simple mistakes like obtained marks being greater than the maximum marks.
             Do not makeup any data and dont assume anything, Extract and return the information that is in the data.
             
-            
-            Here is the extracted data:
-            --- Page 1 ---
-22005500
-22/22093/J372753
-171
-SL. No. J372753
-Board of Intermediate Education,A R
-Bhavan, Nampally; Hyderabad
-500 001
-WE
-INTERMEDIATE
-PASS CERTIFICATE CUM MEMORANDUM OF MARKS
-This is to certify that
-MOTHILAL NAIK N
-son
-of
-SUKHYA NAIK N
-bearing
-Registered No
-1022222324
-has appeared at the Intermediate
-Public
-Examination held in
-MARCH-201O
-and passed in
-GRADE
-with
-ENGLISH
-as the
-Medium of Instruction_
-The subjects in which
-he
-was examined and the marks awarded are as follows
-LYear
-Ycar
-Subject
-Maximum
-Marks
-Maximum
-Marks
-Marks
-Secured
-Marks
-Secured
-Part
-ENGLISH
-100
-085
-100
-088
-Part
-2
-SANSKRIT
-100
-090
-100
-098
-Part
-Optional Subjects
-MATHEMATICS - A
-075
-073
-075
-073
-MATHEMATICS
-B
-075
-070
-075
-070
-PHYSICS
-060
-049
-060
-049
-CHEMISTRY
-060
-053
-060
-049
-PHYSICS PRACTICAL
-030
-030
-CHEMISTRY PRACTICAL
-030
-027
-ENVIRONMENTAL EDUCATION
-e  D
-Total Marks
-In Figures
-904
-In words
-*NINE  ZERO"**FOUR"
-Date
-30-04-2010
-X@
-781
-Reevo_sd
-~l_Aw
-Aiartyte efthe Principal and Cdlege5nr
-Controller of Examinations
-NNOTE
-ELIGIBiI!Y RULES EAVEEN
-INDICATES MARKS OBTAINED AT AN EARLIER EXAMINATION
-EB
-ba[
-1022222324
-Vidya
-cet
+            Output format:
+            1) Structure the data in a tabular format.
+            2) Make no assumptions about the data.
+            3) Return whatever information is available in the data provided.
+            4) We are using two OCR extractor to extract text for better understanding. 
+
+
+            Here is the extracted data from two OCRs:
+            1) Surya OCR: {surya_ocr_text_extracted}
+
+            2) Easy OCR: {easy_ocr_text_extracted_}
 """
         }
     ],
@@ -189,5 +93,5 @@ cet
     format = Marksheet.model_json_schema(),
 )
 
-#result = Marksheet.model_validate_json(response.message.content)
-#print(result)
+result = Marksheet.model_validate_json(response.message.content)
+print(result)
