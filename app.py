@@ -83,15 +83,14 @@ response = chat(
 
 
             Here is the extracted data from two OCRs:
-            1) Surya OCR: {surya_ocr_text_extracted}
-
-            2) Easy OCR: {easy_ocr_text_extracted_}
-"""
+            1) Surya OCR:\n """+ surya_ocr_text_extracted + "2) Easy OCR: \n" + easy_ocr_text_extracted_
         }
     ],
     model = 'llama3.3',
-    format = Marksheet.model_json_schema(),
+    #format = Marksheet.model_json_schema(),
 )
 
-result = Marksheet.model_validate_json(response.message.content)
-print(result)
+print(response.message.content)
+
+# result = Marksheet.model_validate_json(response.message.content)
+# print(result)
