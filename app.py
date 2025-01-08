@@ -1,6 +1,7 @@
 from ollama import chat
 from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
+from utils.ocr_tools.surya_ocr_tool import get_image_text_suryaocr
 
 class Mark_for_each_subject(BaseModel):
     semeste_year_class: str | None = Field(
@@ -29,10 +30,10 @@ class Marksheet(BaseModel):
     class_semester_year: str = Field(..., description="Class, semester, or year information of the student's marksheet.")
     year_of_passing: str | None = Field(None, description="Year in which the course was completed.")
     maximum_total_marks: int = Field(
-        ..., description="The total maximum marks for all subjects."
+        ..., description="The total maximum marks for all subjects, if applicable"
     )
     obtained_total_marks: int = Field(
-        ..., description="The total marks obtained by the student."
+        ..., description="The total marks obtained by the student. This might sometimes be written as Total marks"
     )
     grading_type: Literal['percentage', 'CGPA'] = Field(
         ..., description="The type of grading used: percentage or CGPA."
@@ -50,6 +51,18 @@ class Marksheet(BaseModel):
         ..., description="List of marks for each subject."
     )
 
+
+image_path = "/home/document_ocr/images/12th/Document_2_App_1.pdf"
+
+# extracting info using Two OCR-tools
+# 1) Using EasyOCR
+
+
+
+# 2) Using SuryaOCR
+surya_ocr_text_extracted_ = get_image_text_suryaocr(image_path)
+print(text_extracted)
+
 response = chat(
     messages=[
         {
@@ -57,7 +70,7 @@ response = chat(
             'content': """You are a helpful assistant, help me extract the important information from marksheet data provided below. 
             The data is extracted from marksheet using OCR tools and the data might not be in a proper format. 
             Make sure there are no simple mistakes like obtained marks being greater than the maximum marks.
-            Do not makeup any data.
+            Do not makeup any data and dont assume anything, Extract and return the information that is in the data.
             
             
             Here is the extracted data:
@@ -172,8 +185,9 @@ cet
 """
         }
     ],
-    model = 'llama3.3:80b',
+    model = 'llama3.3',
     format = Marksheet.model_json_schema(),
 )
 
-result = Marksheet.model_validate_json(response.message.content)
+#result = Marksheet.model_validate_json(response.message.content)
+#print(result)
