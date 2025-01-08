@@ -4,6 +4,7 @@ from typing import Optional, Literal, List
 from utils.ocr_tools.surya_ocr_tool import get_image_text_suryaocr
 from utils.ocr_tools.easy_ocr_tool import get_image_text_easyocr
 
+number_of_years_semesters = "2 years"
 
 class Mark_for_each_subject(BaseModel):
     semeste_year_class: str | None = Field(
@@ -81,16 +82,35 @@ response = chat(
             3) Return whatever information is available in the data provided.
             4) We are using two OCR extractor to extract text for better understanding. 
 
+            As per the number of semester/years marks mentioned, you need to create individual tables for them
 
             Here is the extracted data from two OCRs:
-            1) Surya OCR:\n """+ surya_ocr_text_extracted + "2) Easy OCR: \n" + easy_ocr_text_extracted_
+            1) Surya OCR:\n """+ surya_ocr_text_extracted + "2) Easy OCR: \n" + easy_ocr_text_extracted_ \
+            + "Additional information: \n 1) Number of semester/Years marks in the marksheet: " + number_of_years_semesters \
+            "2) If the data is mismatching between two OCR extracted text then choose data from Surya OCR"
+
         }
     ],
     model = 'llama3.3',
     #format = Marksheet.model_json_schema(),
 )
+formatted_data_by_llm = response.message.content
 
-print(response.message.content)
+print(formatted_data_by_llm)
 
-# result = Marksheet.model_validate_json(response.message.content)
-# print(result)
+
+response = chat(
+    messages=[
+        {
+            'role': 'user',
+            'content': """You are a helpful assistant who ll extract right infomration from the data provided.
+            The data below is the text extracted by using multiple OCRs and also the refined OCR data."""
+
+        }
+    ],
+    model = 'llama3.3',
+    format = Marksheet.model_json_schema(),
+)
+
+result = Marksheet.model_validate_json(response.message.content)
+print(result)
