@@ -1,3 +1,5 @@
 surya-ocr
 easyocr
 pdf2image
+ollama
+pydantic
