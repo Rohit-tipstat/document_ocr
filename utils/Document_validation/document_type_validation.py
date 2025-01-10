@@ -1,24 +1,19 @@
 from pydantic import BaseModel
-from openai import OpenAI
-from dotenv import load_dotenv
 from typing import Literal, Optional
+from ollama import chat
 
-# Load environment variables
-load_dotenv()
-
-# Initialize OpenAI client
-client = OpenAI()
 
 # Define the data model
 class ValidDocumentType(BaseModel):
     Document_type: Literal[
-        "Pan Card", "Passport", "Electricity bill", "Gas bill", "Rental Receipt", "Admission Letter or Bonafide Certificate", "Fee Structure or Fee Receipt", "Marksheet"
+        "Mark Sheet", "Others"
     ]  # Specify valid document types
-    Class: Optional[Literal[
+    class_: Optional[Literal[
         "Higher Secondary Certificate Examination", 
-        "Secondary School Certificate/Central Board of Secondary Education", 
+        "Secondary School Certificate/Central Board of Secondary Education/Intermediate", 
         "Bachelors Degree", 
-        "Master's Degree"
+        "Master's Degree",
+        "None"
     ]]
     
 
@@ -32,19 +27,22 @@ def extract_event_information(text: str) -> dict:
     Returns:
         dict: Parsed document type and additional information.
     """
-    completion = client.beta.chat.completions.parse(
-        model="gpt-4o-2024-08-06",
-        messages=[
-            {"role": "system", "content": "Extract the document information."},
-            {"role": "user", "content": text},
+    response = chat(
+        messages = [
+            {
+                'role': 'user',
+                'content': "Extract all the important data from the data provided. \n\n Data: {text}"
+
+            }
         ],
-        response_format=ValidDocumentType,
+        model='llama3.1:8b',
+        format = ValidDocumentType.model_json_schema()
     )
 
-    # Extract the parsed content from the response
-    event = completion.choices[0].message.content
+    outut_json = ValidDocumentType.model_validate_json(response.message.content)
+    print(outut_json)
 
-    return event
+    return outut_json
 
 # Example usage
 if __name__ == "__main__":
