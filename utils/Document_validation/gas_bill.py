@@ -9,13 +9,13 @@ class gas_bill(BaseModel):
         "gas_bill", "other_document"  # Specify valid document types
     ]
     name_of_the_owner: str
-    address_of_the_owner: str
-    pincode_of_the_owner: int
-    consumer_number: str
-    date: str
+    # address_of_the_owner: str
+    # pincode_of_the_owner: int
+    # consumer_number: str
+    # date: str
 
 
-def extract_event_information(text: str) -> Optional[dict]:
+def fee_structure_extract_event_information(formatted_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -25,15 +25,17 @@ def extract_event_information(text: str) -> Optional[dict]:
     """
     try:
         # Prepare the prompt
-        prompt ="""Aim: To analyse the information and extract the right informations.
-               Procedure: The data given would be reframed for better understanding and then
-               the relevant data would be extracted.
-               You need to analyse the reframed data to see if the text is of an gas bill or not.
-               Also, you need to detect the owner name, address of the resident, pincode, consumer number and the date of the bill.
-               Data information: The data is extracted from images or PDFs using OCR tools.
-               NOTE: The information is extracted using OCR tool and might have mis-spelled data. You need to handle it
-               \n\n
-            """ + f"Data: {text}"
+        prompt = """
+Aim: To analyze the provided document and predict if the text is from an achievement certificate or not.
+
+Procedure:
+- The goal is to classify whether the text is a fee structure or another type of document.
+- If the text is a fee structure, extract the following details:
+  - Owner Name
+- If the document is not a fee structure, return the document type as 'other_document' and leave other fields empty.
+
+The data to analyze: 
+""" + formatted_text
 
 
         # Send the chat request

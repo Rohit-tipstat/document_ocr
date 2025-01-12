@@ -4,15 +4,14 @@ from ollama import chat
 
 
 # Define the data model
-class ration_card(BaseModel):
+class electricity_bill(BaseModel):
     document_type: Literal[
-        "ration_card", "other_document"  # Specify valid document types
+        "electricity_bill", "other_document"  # Specify valid document types
     ]
-    name_of_the_card_holder: str
-    # address_of_the_card_holder: str
+    name_of_the_owner: str
 
 
-def ration_card_extract_event_information(formatted_text: str) -> Optional[dict]:
+def extract_event_information(surya_ocr_text: str, easy_ocr_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -23,16 +22,18 @@ def ration_card_extract_event_information(formatted_text: str) -> Optional[dict]
     try:
         # Prepare the prompt
         prompt = """
-Aim: To analyze the provided document and predict if the text is from a ration_card or not.
+Aim: To analyze and extract relevant information from an OCR-extracted text of a document.
 
 Procedure:
-- The goal is to classify whether the text is a ration card or another type of document.
-- If the text is a ration card, extract the following details:
-  - name_of_the_card_holder
-- If the document is not a ration card, return the document type as 'other_document' and leave other fields empty.
+- The extracted OCR data may have spelling errors or unclear text, so the model should focus on context to extract the correct details.
 
-The data to analyze: 
-""" + formatted_text
+Please be aware that OCR text might have issues like mis-spelling or missing characters, so focus on interpreting the most likely values.
+
+Data extracted using OCR:
+Surya OCR Extracted Data: """ + surya_ocr_text + "\nEasyOCR Extracted Data: " + easy_ocr_text + "Format the data to be human readable"
+
+ #+ f"The data for same image is extracted from two OCRs. Refer both the text for better understanding: 1) Surya OCR Extrcated Data: {surya_ocr_text}\n\n2) EasyOCR Extrcated Data: {easy_ocr_text}"
+
 
         # Send the chat request
         response = chat(
@@ -40,12 +41,13 @@ The data to analyze:
                 {"role": "user", "content": prompt}
             ],
             model="llama3.3:70b",
-            format=electricity_bill.model_json_schema(),
+            #format=electricity_bill.model_json_schema(),
             options={'temperature': 0.2},
         )
 
         # Parse and validate the response
-        output_json = electricity_bill.model_validate_json(response.message.content)
+        # output_json = electricity_bill.model_validate_json(response.message.content)
+        output_json = response.message.content
         print("Validation successful:", output_json)
         return output_json.dict()
 

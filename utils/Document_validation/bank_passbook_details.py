@@ -9,13 +9,14 @@ class bank_passbook(BaseModel):
         "bank_passbook", "other_document"  # Specify valid document types
     ]
     account_holder_name: str
-    account_holder_address: str
-    account_holder_address_pincode: int
-    bank_name: str
-    bank_address: str
-    bank_address_pincode: int
+    # account_number: str
+    # account_holder_address: str
+    # account_holder_address_pincode: int
+    # bank_name: str
+    # bank_address: str
+    # bank_address_pincode: int
 
-def extract_event_information(text: str) -> Optional[dict]:
+def bank_passbook_extract_event_information(formatted_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -25,16 +26,17 @@ def extract_event_information(text: str) -> Optional[dict]:
     """
     try:
         # Prepare the prompt
-        prompt ="""Aim: To analyse the information and extract the right informations.
-               Procedure: The data given would be reframed for better understanding and then
-               the relevant data would be extracted.
-               You need to analyse the reframed data to see if the text is of a bank passbook or not.
-               Also, you need to detect the account holder's name, account holder's address, account holder's address pincode, bank name, bank address, bank adress pincode from the text. 
-               Data information: The data is extracted from images or PDFs using OCR tools.
-               NOTE: The information is extracted using OCR tool and might have mis-spelled data. You need to handle it
-               \n\n
-            """ + f"Data: {text}"
+        prompt = """
+Aim: To analyze the provided document and predict if the text is from a bank passbook or not.
 
+Procedure:
+- The goal is to classify whether the text is a bank passbook or another type of document.
+- If the text is a bank passbook, extract the following details:
+  - Account Holder Name
+- If the document is not a bank passbook, return the document type as 'other_document' and leave other fields empty.
+
+The data to analyze: 
+""" + formatted_text
 
         # Send the chat request
         response = chat(

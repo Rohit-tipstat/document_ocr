@@ -9,11 +9,11 @@ class annual_income(BaseModel):
         "income_certificate", "other_document"  # Specify valid document types
     ]
     name: str
-    address: str
-    Annual_income: int
-    date: str
+    # address: str
+    # Annual_income: int
+    # date: str
     
-def extract_event_information(text: str) -> Optional[dict]:
+def annual_income_extract_event_information(formatted_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -23,15 +23,17 @@ def extract_event_information(text: str) -> Optional[dict]:
     """
     try:
         # Prepare the prompt
-        prompt ="""Aim: To analyse the information and extract the right informations.
-               Procedure: The data given would be reframed for better understanding and then
-               the relevant data would be extracted.
-               You need to analyse the reframed data to see if the text is of a income certificate or not.
-               Also, you need to detect the name, address, annual income and date from the text. 
-               Data information: The data is extracted from images or PDFs using OCR tools.
-               NOTE: The information is extracted using OCR tool and might have mis-spelled data. You need to handle it
-               \n\n
-            """ + f"Data: {text}"
+        prompt = """
+Aim: To analyze the provided document and predict if the text is from an achievement certificate or not.
+
+Procedure:
+- The goal is to classify whether the text is an annualcincome receipt or another type of document.
+- If the text is an annual income receipt, extract the following details:
+  - Person name of the recipt holder
+- If the document is not an annual income receipt, return the document type as 'other_document' and leave other fields empty.
+
+The data to analyze: 
+""" + formatted_text
 
 
         # Send the chat request

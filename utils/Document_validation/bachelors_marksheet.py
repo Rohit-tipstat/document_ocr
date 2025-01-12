@@ -4,15 +4,19 @@ from ollama import chat
 
 
 # Define the data model
-class ration_card(BaseModel):
+class bachelors_marksheet(BaseModel):
     document_type: Literal[
-        "ration_card", "other_document"  # Specify valid document types
+        "bachelors_marksheet", "other_document"  # Specify valid document types
     ]
-    name_of_the_card_holder: str
-    # address_of_the_card_holder: str
+    student_name: str
+    # total_marks: int
+    # university: str
+    # percentage: str
+    # cgpa: float
+    # start_year: int
+    # passing_year: int
 
-
-def ration_card_extract_event_information(formatted_text: str) -> Optional[dict]:
+def extract_event_information(formatted_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -23,16 +27,17 @@ def ration_card_extract_event_information(formatted_text: str) -> Optional[dict]
     try:
         # Prepare the prompt
         prompt = """
-Aim: To analyze the provided document and predict if the text is from a ration_card or not.
+Aim: To analyze the provided document and predict if the text is from a bachelors marksheet or not.
 
 Procedure:
-- The goal is to classify whether the text is a ration card or another type of document.
-- If the text is a ration card, extract the following details:
-  - name_of_the_card_holder
-- If the document is not a ration card, return the document type as 'other_document' and leave other fields empty.
+- The goal is to classify whether the text is an bachelors marksheet or another type of document.
+- If the text is an bachelors marksheet, extract the following details:
+  - Student Name
+- If the document is not an bachelors marksheet, return the document type as 'other_document' and leave other fields empty.
 
 The data to analyze: 
 """ + formatted_text
+
 
         # Send the chat request
         response = chat(
@@ -40,13 +45,12 @@ The data to analyze:
                 {"role": "user", "content": prompt}
             ],
             model="llama3.3:70b",
-            format=electricity_bill.model_json_schema(),
+            format=bachelors_masters_marksheet.model_json_schema(),
             options={'temperature': 0.2},
         )
 
         # Parse and validate the response
-        output_json = electricity_bill.model_validate_json(response.message.content)
-        print("Validation successful:", output_json)
+        output_json = bachelors_masters_marksheet.model_validate_json(response.message.content)
         return output_json.dict()
 
     except ValidationError as ve:

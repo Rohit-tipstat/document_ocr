@@ -4,18 +4,18 @@ from ollama import chat
 
 
 # Define the data model
-class orphanage_certificate_institute(BaseModel):
+class rent_receipt(BaseModel):
     document_type: Literal[
-        "orphan_certificate", "other_document"  # Specify valid document types
+        "rent_receipt", "other_document"  # Specify valid document types
     ]
-    name_of_orphan: str
-    name_of_institute: str
-    address_of_institute: str
-    pincode_of_institute: int
+    name_of_tenant: str
+    # name_of_institute: str
+    # address_of_institute: str
+    # pincode_of_institute: int
     
 
 
-def extract_event_information(text: str) -> Optional[dict]:
+def rent_receipt_extract_event_information(formatted_text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
     Args:
@@ -25,16 +25,17 @@ def extract_event_information(text: str) -> Optional[dict]:
     """
     try:
         # Prepare the prompt
-        prompt ="""Aim: To analyse the information and extract the right informations.
-               Procedure: The data given would be reframed for better understanding and then
-               the relevant data would be extracted.
-               You need to analyse the reframed data to see if the text is of a rent receipt issued by institute or not.
-               Also, you need to detect the institute name, orphan name, institute address and pincode.
-               Data information: The data is extracted from images or PDFs using OCR tools.
-               NOTE: The information is extracted using OCR tool and might have mis-spelled data. You need to handle it.
-               If the certificate is issued by the government and not by the institute then consider it as invalid.
-               \n\n
-            """ + f"Data: {text}"
+        prompt = """
+Aim: To analyze the provided document and predict if the text is from a rent receipt or not.
+
+Procedure:
+- The goal is to classify whether the text is a rent receipt or another type of document.
+- If the text is a rent receipt, extract the following details:
+  - Name of tenant
+- If the document is not a rent receipt, return the document type as 'other_document' and leave other fields empty.
+
+The data to analyze: 
+""" + formatted_text
 
         # Send the chat request
         response = chat(
