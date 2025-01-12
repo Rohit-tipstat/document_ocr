@@ -1,0 +1,8 @@
+step 1: apt-get update
+step 2: apt-get upgrade
+ste[ 3: Installing requirement.txt file pip install -r requirement.txt
+step 4: curl -fsSL https://ollama.com/install.sh | sh
+step 5: Running ollama server: ollama serve
+step 6: ollama pull llama3.3:70b
+step 7: apt install poppler-utils
+step 8: 
