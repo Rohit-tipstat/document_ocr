@@ -20,10 +20,8 @@ class ValidDocumentType(BaseModel):
 def extract_event_information(text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
-
     Args:
         text (str): The input text containing document information.
-
     Returns:
         dict: Parsed document type and additional information or None if an error occurs.
     """

@@ -4,26 +4,22 @@ from ollama import chat
 
 
 # Define the data model
-class ValidDocumentType(BaseModel):
+class admission_letter(BaseModel):
     document_type: Literal[
-        "mark_sheet", "other_document"  # Specify valid document types
+        "admission_letter", "other_document"  # Specify valid document types
     ]
-    class_or_degree: Optional[Literal[
-        "Higher Secondary Examination Marksheet",
-        "Secondary School / Central Board of Secondary Education / Intermediate Marksheet",
-        "Bachelor's Degree Marksheet",
-        "Master's Degree Marksheet",
-        "None"
-    ]]
+    student_name: str
+    school_or_college_name: str
+    school_or_college_address: Optional[str]
+    pincode: int
+    date: str
 
 
 def extract_event_information(text: str) -> Optional[dict]:
     """
     Extracts event information from the input text using OpenAI's API.
-
     Args:
         text (str): The input text containing document information.
-
     Returns:
         dict: Parsed document type and additional information or None if an error occurs.
     """
@@ -32,13 +28,13 @@ def extract_event_information(text: str) -> Optional[dict]:
         prompt ="""Aim: To analyse the information and extract the right informations.
                Procedure: The data given would be reframed for better understanding and then
                the relevant data would be extracted.
-               You need to analyse the reframed data to see if the text is of a marksheet or not.
-               Also, you need to detect if it is of a Higher Secondary, Secondary School or Intermediate Marksheet, or Bachelors or Masters.
-               if it is not a marksheet then return none in the required field.
+               You need to analyse the reframed data to see if the text is of a bonafied certificate / Admission letter / Academic Enrollment Confirmation letter or not.
+               Also, you need to detect the student name, college address, pincode and the date of document was made.
                Data information: The data is extracted from images or PDFs using OCR tools.
                NOTE: The information is extracted using OCR tool and might have mis-spelled data. You need to handle it
                \n\n
             """ + f"Data: {text}"
+
 
         # Send the chat request
         response = chat(
@@ -46,12 +42,12 @@ def extract_event_information(text: str) -> Optional[dict]:
                 {"role": "user", "content": prompt}
             ],
             model="llama3.3:70b",
-            format=ValidDocumentType.model_json_schema(),
+            format=admission_letter.model_json_schema(),
             options={'temperature': 0.2},
         )
 
         # Parse and validate the response
-        output_json = ValidDocumentType.model_validate_json(response.message.content)
+        output_json = admission_letter.model_validate_json(response.message.content)
         print("Validation successful:", output_json)
         return output_json.dict()
 
